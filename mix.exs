@@ -20,7 +20,9 @@ defmodule Hello.MixProject do
   def application do
     [
       mod: {Hello.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
+      applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
+                  :phoenix_ecto, :postgrex, :ssl]
     ]
   end
 
