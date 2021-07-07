@@ -13,24 +13,37 @@ defmodule HelloWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :review_checks do
+    plug :browser #pipelines themselves are plugs
+    plug :ensure_authenticated_user
+    plug :ensure_user_owns_review
+  end
+
+  scope "/reviews", HelloWeb do
+    #pipe_through [:browser, :review_checks]
+    pipe_through :review_checks
+
+    resources "/", ReviewController
+  end
+
+  scope "/admin", HelloWeb.Admin, as: :admin do
+    pipe_through :browser
+
+    resources "/reviews", ReviewController
+  end
+
   scope "/", HelloWeb do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/hello", HelloController, :index
+    get "/hello/:messenger", HelloController, :show
+
+    resources "/users", UserController
+    resources "/posts", PostController, only: [:index, :show]
+    resources "/reviews", ReviewController
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", HelloWeb do
-  #   pipe_through :api
-  # end
-
-  # Enables LiveDashboard only for development
-  #
-  # If you want to use the LiveDashboard in production, you should put
-  # it behind authentication and allow only admins to access it.
-  # If your application does not have an admins-only section yet,
-  # you can use Plug.BasicAuth to set up some basic authentication
-  # as long as you are also using SSL (which you should anyway).
   if Mix.env() in [:dev, :test] do
     import Phoenix.LiveDashboard.Router
 
