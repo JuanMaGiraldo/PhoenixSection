@@ -1,9 +1,28 @@
 <section class="phx-hero">
   <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
   <p>Peace of mind from prototype to production</p>
+  <%= render(HelloWeb.PageView, "test.html", message: "Hello from layout!") %> <br />
+  <%= render("test.html", message: "Without PageView!") %>
+
+
 </section>
 
 <section class="row">
+
+  <table>
+    <tr>
+      <th>Number</th>
+      <th>Power</th>
+    </tr>
+  <%= for number <- 1..10 do %>
+    <tr>
+      <td><%= number %></td>
+      <td><%= number * number %></td>
+    </tr>
+  <% end %>
+  </table>
+
+
   <article class="column">
     <h2>Resources</h2>
     <ul>
