@@ -42,9 +42,38 @@ defmodule HelloWeb.Router do
     get "/hello", HelloController, :index
     get "/hello/:messenger", HelloController, :show
 
+    resources "/users", UserController
+
+    resources "/sessions", SessionController, only: [:new, :create, :delete],
+                                              singleton: true
+
     #resources "/users", UserController
     #resources "/posts", PostController, only: [:index, :show]
     #resources "/reviews", ReviewController
+  end
+
+  scope "/cms", HelloWeb.CMS, as: :cms do
+    pipe_through [:browser, :authenticate_user]
+
+    resources "/pages", PageController
+  end
+
+  defp authenticate_user(conn, _) do
+    try do
+      case get_session(conn, :user_id) do
+        nil ->     handle_error(conn)
+        user_id -> assign(conn, :current_user, Hello.Accounts.get_user!(user_id))
+      end
+    rescue
+      Ecto.NoResultsError -> handle_error(conn)
+    end
+  end
+
+  defp handle_error(conn) do
+    conn
+    |> Phoenix.Controller.put_flash(:error, "Login required")
+    |> Phoenix.Controller.redirect(to: "/")
+    |> halt()
   end
 
   if Mix.env() in [:dev, :test] do
